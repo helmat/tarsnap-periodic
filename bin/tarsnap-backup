@@ -37,13 +37,10 @@ create_backup()
     fullname="$(path2name $path)-$now"
     # look for an existing backup with this name
     if tarsnap --list-archives | grep -q "^${fullname}$"; then
-        echo "     backup $fullname already exists, skipping..."
+        echo "* backup $fullname already exists, skipping..."
     else
-        echo "     making backup: $fullname"
-        tarsnap -c -f $fullname $path
-        if [ -n $? ]; then
-            something_wrong=1
-        fi
+        echo "  * making backup: $fullname"
+        tarsnap -c -f $fullname $path || something_wrong=1
     fi
 }
 
@@ -51,7 +48,7 @@ create_backup()
 delete_backup()
 {
     backup=$1
-    echo "	deleting old backup, $backup"
+    echo "  * deleting old backup: $backup"
     tarsnap -d -f $backup
 }
 
