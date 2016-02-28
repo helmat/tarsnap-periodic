@@ -34,7 +34,7 @@ create_backup()
 
     fullname="$(path2name $path)-$now"
     # look for an existing backup with this name
-    if tarsnap --list-archives | grep "^${fullname}$" > /dev/null 2>&1; then
+    if tarsnap --list-archives | grep -q "^${fullname}$"; then
         echo "     backup $fullname already exists, skipping..."
     else
         echo "     making backup: $fullname"
