@@ -8,21 +8,21 @@ then
     source_periodic_confs
 fi
 
-pools=$daily_zfs_snapshot_pools
-if [ -z "$pools" ]; then
-    pools='tank'
+paths=$daily_tarsnap_backup_paths
+if [ -z "$paths" ]; then
+    paths='/'
 fi
 
-keep=$daily_zfs_snapshot_keep
+keep=$daily_tarsnap_backup_keep
 if [ -z "$keep" ]; then
     keep=7
 fi
 
-case "$daily_zfs_snapshot_enable" in
+case "$daily_tarsnap_backup_enable" in
     [Yy][Ee][Ss])
-        . /etc/periodic/zfs-snapshot
-        do_snapshots "$pools" $keep 'daily' "$daily_zfs_snapshot_skip"
+        . /usr/local/bin/tarsnap-backup
+        do_backups "$paths" $keep 'daily'
         ;;
     *)
-        ;; 
+        ;;
 esac
