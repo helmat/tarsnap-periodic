@@ -20,7 +20,7 @@ fi
 
 case "$daily_tarsnap_backup_enable" in
     [Yy][Ee][Ss])
-        . /usr/local/bin/tarsnap-backup
+        . /bin/tarsnap-backup
         do_backups "$paths" $keep 'daily'
         ;;
     *)
