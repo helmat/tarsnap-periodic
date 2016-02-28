@@ -1,7 +1,7 @@
 #!/bin/sh
 
 path2name() {
-    res=`echo $1 | sed -E -e 's,/+,/,g' -e 's,/$|^/,,g' -e 's,/,-,g'`
+    res=$(echo $1 | sed -E -e 's,/+,/,g' -e 's,/$|^/,,g' -e 's,/,-,g')
     if [ -z "$res" ]; then
         res='ROOT'
     fi
@@ -16,25 +16,25 @@ create_backup()
 
     case "$type" in
         daily)
-        now=`date +"$type-%Y-%m-%d"`
+        now=$(date +"$type-%Y-%m-%d")
         ;;
         weekly)
-        now=`date +"$type-%Y-%U"`
+        now=$(date +"$type-%Y-%U")
         ;;
         monthly)
-        now=`date +"$type-%Y-%m"`
+        now=$(date +"$type-%Y-%m")
         ;;
         yearly)
-        now=`date +"$type-%Y"`
+        now=$(date +"$type-%Y")
         ;;
         *)
         echo "unknown backup type: $type"
         exit 1
     esac
 
-    fullname="`path2name $path`-$now"
+    fullname="$(path2name $path)-$now"
     # look for an existing backup with this name
-    if tarsnap --list-archives | grep $fullname > /dev/null 2>&1; then
+    if tarsnap --list-archives | grep "^${fullname}$" > /dev/null 2>&1; then
         echo "     backup $fullname already exists, skipping..."
     else
         echo "     making backup: $fullname"
@@ -67,15 +67,15 @@ do_path()
         ;;
         weekly)
         # weekly-2009-01
-        regex="^$name-$type-[0-9][0-9][0-9][0-9]-[0-9][0-9]"
+        regex="^$name-$type-[0-9][0-9][0-9][0-9]-[0-9][0-9]$"
         ;;
         monthly)
         # monthly-2009-01
-        regex="^$name-$type-[0-9][0-9][0-9][0-9]-[0-9][0-9]"
+        regex="^$name-$type-[0-9][0-9][0-9][0-9]-[0-9][0-9]$"
         ;;
         yearly)
         # yearly-2009
-        regex="^$name-$type-[0-9][0-9][0-9][0-9]"
+        regex="^$name-$type-[0-9][0-9][0-9][0-9]$"
         ;;
         *)
         echo "unknown snapshot type: $type"
@@ -86,11 +86,11 @@ do_path()
 
     # get a list of all of the backups of this type sorted alpha, which
     # effectively is increasing date/time
-    backups=`tarsnap --list-archives | grep $regex | sort`
-    count=`echo $snapshots | wc -l`
+    backups=$(tarsnap --list-archives | grep $regex | sort)
+    count=$(echo $snapshots | wc -l)
     if [ $count -ge 0 ]; then
         # how many items should we delete
-        delete=`expr $count - $keep`
+        delete=$(expr $count - $keep)
         count=0
         # walk through the backups, deleting them until we've trimmed deleted
         for backup in $backups; do
@@ -98,7 +98,7 @@ do_path()
                 break
             fi
             delete_backup $backup
-            count=`expr $count + 1`
+            count=$(expr $count + 1)
         done
     fi
 }
