@@ -78,7 +78,7 @@ do_path()
         regex="^$name-$type-[0-9][0-9][0-9][0-9]$"
         ;;
         *)
-        echo "unknown snapshot type: $type"
+        echo "unknown backup type: $type"
         exit 1
     esac
 
@@ -87,7 +87,7 @@ do_path()
     # get a list of all of the backups of this type sorted alpha, which
     # effectively is increasing date/time
     backups=$(tarsnap --list-archives | grep $regex | sort)
-    count=$(echo $snapshots | wc -l)
+    count=$(echo $backups | wc -l)
     if [ $count -ge 0 ]; then
         # how many items should we delete
         delete=$(expr $count - $keep)
@@ -116,3 +116,9 @@ do_backups()
         do_path $path $keep $type
     done
 }
+
+if [ $# -ne 3 ]; then
+    echo "Usage: $0 \"<paths>\" <keep> daily|weekly|monthly|yearly"
+    exit 2
+fi
+do_backups "$1" $2 $3
