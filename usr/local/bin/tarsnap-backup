@@ -38,7 +38,7 @@ create_backup()
         echo "     backup $fullname already exists, skipping..."
     else
         echo "     making backup: $fullname"
-        tarsnap --dry-run -c -f $fullname $path
+        tarsnap -c -f $fullname $path
     fi
 }
 
@@ -47,7 +47,7 @@ delete_backup()
 {
     backup=$1
     echo "	deleting old backup, $backup"
-    tarsnap --dry-run -d -f $backup
+    tarsnap -d -f $backup
 }
 
 # make a $type backup of path, cleaning up old ones
