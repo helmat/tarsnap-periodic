@@ -8,6 +8,8 @@ path2name() {
     echo $res
 }
 
+something_wrong=0
+
 # make the appropriately named backup
 create_backup()
 {
@@ -39,6 +41,9 @@ create_backup()
     else
         echo "     making backup: $fullname"
         tarsnap -c -f $fullname $path
+        if [ -n $? ]; then
+            something_wrong=1
+        fi
     fi
 }
 
@@ -115,6 +120,9 @@ do_backups()
     for path in $paths; do
         do_path $path $keep $type
     done
+    if [ -n something_wrong ]; then
+        exit 3
+    fi
 }
 
 if [ $# -ne 3 ]; then
