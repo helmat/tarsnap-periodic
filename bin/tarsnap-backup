@@ -1,5 +1,7 @@
 #!/bin/sh
 
+TARSNAP_CMD="tarsnap"
+
 path2name() {
     res=$(echo $1 | sed -E -e 's,/+,/,g' -e 's,/$|^/,,g' -e 's,/,-,g')
     if [ -z "$res" ]; then
@@ -36,11 +38,11 @@ create_backup()
 
     fullname="$(path2name $path)-$now"
     # look for an existing backup with this name
-    if tarsnap --list-archives | grep -q "^${fullname}$"; then
+    if $TARSNAP_CMD --list-archives | grep -q "^${fullname}$"; then
         echo "* backup $fullname already exists, skipping..."
     else
         echo "  * making backup: $fullname"
-        tarsnap -c -f $fullname $path || something_wrong=1
+        $TARSNAP_CMD -c -f $fullname $path || something_wrong=1
     fi
 }
 
@@ -49,7 +51,7 @@ delete_backup()
 {
     backup=$1
     echo "  * deleting old backup: $backup"
-    tarsnap -d -f $backup
+    $TARSNAP_CMD -d -f $backup
 }
 
 # make a $type backup of path, cleaning up old ones
@@ -88,7 +90,7 @@ do_path()
 
     # get a list of all of the backups of this type sorted alpha, which
     # effectively is increasing date/time
-    backups=$(tarsnap --list-archives | grep $regex | sort)
+    backups=$($TARSNAP_CMD --list-archives | grep $regex | sort)
     count=$(echo $backups | wc -l)
     if [ $count -ge 0 ]; then
         # how many items should we delete
