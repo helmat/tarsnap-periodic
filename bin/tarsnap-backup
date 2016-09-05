@@ -3,7 +3,7 @@
 TARSNAP_CMD="tarsnap"
 
 path2name() {
-    res=$(echo $1 | sed -E -e 's,/+,/,g' -e 's,/$|^/,,g' -e 's,/,-,g')
+    res=$(echo "$1" | sed -E -e 's,/+,/,g' -e 's,/$|^/,,g' -e 's,/,-,g')
     if [ -z "$res" ]; then
         res='ROOT'
     fi
@@ -36,13 +36,13 @@ create_backup()
         exit 1
     esac
 
-    fullname="$(path2name $path)-$now"
+    fullname="$(path2name "$path")-$now"
     # look for an existing backup with this name
     if $TARSNAP_CMD --list-archives | grep -q "^${fullname}$"; then
         echo "* backup $fullname already exists, skipping..."
     else
         echo "  * making backup: $fullname"
-        $TARSNAP_CMD -c -f $fullname $path || something_wrong=1
+        $TARSNAP_CMD -c -f "$fullname" "$path" || something_wrong=1
     fi
 }
 
@@ -51,7 +51,7 @@ delete_backup()
 {
     backup=$1
     echo "  * deleting old backup: $backup"
-    $TARSNAP_CMD -d -f $backup
+    $TARSNAP_CMD -d -f "$backup"
 }
 
 # make a $type backup of path, cleaning up old ones
@@ -61,7 +61,7 @@ do_path()
     keep=$2
     type=$3
 
-    name="`path2name $path`"
+    name="$(path2name "$path")"
 
     # create the regex matching the type of backup we're currently working on
     case "$type" in
@@ -86,23 +86,23 @@ do_path()
         exit 1
     esac
 
-    create_backup $path $type
+    create_backup "$path" "$type"
 
     # get a list of all of the backups of this type sorted alpha, which
     # effectively is increasing date/time
-    backups=$($TARSNAP_CMD --list-archives | grep $regex | sort)
-    count=$(echo $backups | wc -l)
-    if [ $count -ge 0 ]; then
+    backups=$($TARSNAP_CMD --list-archives | grep "$regex" | sort)
+    count=$(echo "$backups" | wc -l)
+    if [ "$count" -ge 0 ]; then
         # how many items should we delete
-        delete=$(expr $count - $keep)
+        delete=$((count - keep))
         count=0
         # walk through the backups, deleting them until we've trimmed deleted
         for backup in $backups; do
             if [ $count -ge $delete ]; then
                 break
             fi
-            delete_backup $backup
-            count=$(expr $count + 1)
+            delete_backup "$backup"
+            count=$((count + 1))
         done
     fi
 }
@@ -117,9 +117,9 @@ do_backups()
     echo ""
     echo "Doing tarsnap $type backups:"
     for path in $paths; do
-        do_path $path $keep $type
+        do_path "$path" "$keep" "$type"
     done
-    if [ -n something_wrong ]; then
+    if [ -n "$something_wrong" ]; then
         exit 3
     fi
 }
@@ -128,4 +128,4 @@ if [ $# -ne 3 ]; then
     echo "Usage: $0 \"<paths>\" <keep> daily|weekly|monthly|yearly"
     exit 2
 fi
-do_backups "$1" $2 $3
+do_backups "$1" "$2" "$3"
