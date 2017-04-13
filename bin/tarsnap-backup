@@ -128,4 +128,15 @@ if [ $# -ne 3 ]; then
     echo "Usage: $0 \"<paths>\" <keep> daily|weekly|monthly|yearly"
     exit 2
 fi
+
+if [ -z "$TARSNAP_BACKUP_NODELAY" ]; then
+    # In FreeBSD 12.0 the anticongestion function should be used
+    # instead of a hard-coded sleep
+    if [ -n "$anticongestion_sleeptime" ]; then
+        anticongestion
+    else
+        sleep $(random)
+    fi
+fi
+
 do_backups "$1" "$2" "$3"
