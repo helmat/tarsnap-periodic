@@ -19,3 +19,5 @@ monthly_tarsnap_backup_enable="YES"
 monthly_tarsnap_backup_paths="/"
 monthly_tarsnap_backup_keep=2
 ```
+
+Note: The first tarsnap backup can take a very long time. Therefore it might be a good idea to run it by hand and let it finish before turning on these scripts. Further backups will be incremental, so they shouldn't take that long.
