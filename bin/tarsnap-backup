@@ -3,10 +3,7 @@
 TARSNAP_CMD="tarsnap"
 
 path2name() {
-    res=$(echo "$1" | sed -E -e 's,/+,/,g' -e 's,/$|^/,,g' -e 's,/,-,g')
-    if [ -z "$res" ]; then
-        res='ROOT'
-    fi
+    res=$(echo "$1" | sed -E -e 's,:.*,,' -e 's,/+,/,g' -e 's,/$|^/,,g' -e 's,/,-,g')
     echo $res
 }
 
@@ -36,13 +33,20 @@ create_backup()
         exit 1
     esac
 
-    fullname="$(path2name "$path")-$now"
+    fullname="$(path2name "$path")"
+    path=${path#$fullname:}
+    if [ -n "$fullname" ]; then
+        fullname="$fullname-"
+    fi
+    fullname="$fullname$now"
+    path=$(echo "$path" | sed 's,:, ,g')
+
     # look for an existing backup with this name
     if $TARSNAP_CMD --list-archives | grep -q "^${fullname}$"; then
         echo "* backup $fullname already exists, skipping..."
     else
         echo "  * making backup: $fullname"
-        $TARSNAP_CMD -c -f "$fullname" "$path" || something_wrong=1
+        $TARSNAP_CMD -c -f "$fullname" $(echo "$path") || something_wrong=1
     fi
 }
 
@@ -62,24 +66,27 @@ do_path()
     type=$3
 
     name="$(path2name "$path")"
+    if [ -n "$name" ]; then
+        name="$name-"
+    fi
 
     # create the regex matching the type of backup we're currently working on
     case "$type" in
         daily)
         # $name-daily-2009-01-01
-        regex="^$name-$type-[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]$"
+        regex="^$name$type-[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]$"
         ;;
         weekly)
         # weekly-2009-01
-        regex="^$name-$type-[0-9][0-9][0-9][0-9]-[0-9][0-9]$"
+        regex="^$name$type-[0-9][0-9][0-9][0-9]-[0-9][0-9]$"
         ;;
         monthly)
         # monthly-2009-01
-        regex="^$name-$type-[0-9][0-9][0-9][0-9]-[0-9][0-9]$"
+        regex="^$name$type-[0-9][0-9][0-9][0-9]-[0-9][0-9]$"
         ;;
         yearly)
         # yearly-2009
-        regex="^$name-$type-[0-9][0-9][0-9][0-9]$"
+        regex="^$name$type-[0-9][0-9][0-9][0-9]$"
         ;;
         *)
         echo "unknown backup type: $type"
