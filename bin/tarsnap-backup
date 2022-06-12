@@ -23,7 +23,7 @@ create_backup()
         now=$(date +"$type-%Y-%m-%d")
         ;;
         weekly)
-        now=$(date +"$type-%Y-%U")
+        now=$(date +"$type-%G-%V")
         ;;
         monthly)
         now=$(date +"$type-%Y-%m")
